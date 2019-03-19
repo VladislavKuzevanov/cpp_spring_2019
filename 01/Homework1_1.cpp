@@ -59,16 +59,6 @@ int Calc (const int& size, char& first_num, char& second_num,const  int a[]){
 }
 int main(int argc, char* argv[])
 {
-	//for (int i = 0; i < Size; i++)
-	//{
-		//std::cout << Data[i] << std::endl;
-	//}
-	for (int i = 1; i < argc; ++i)
-	{
-		//int v = std::atoi(argv[i]);
-		//std::cout << v << " ";
-        }
-	//std::cout << std::endl;
 	if (argc % 2 == 1){
 		for (int i = 1; i+1 < argc; i = i+2)
 		{
