@@ -61,19 +61,13 @@ public:
 	int getColumns() {
 		return columns;
 	}
-	Matrix operator*= (const int& x) {
+	Matrix& operator*= (const int& x) {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < columns; j++) {
 				(*this)[i][j] = (*this)[i][j] * x;
 			}
 		}
-		Matrix tmp(rows, columns);
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < columns; j++) {
-				tmp[i][j] = (*this)[i][j] * x;
-			}
-		}
-		return tmp;
+		return *this;
 	}
 	bool operator== (const Matrix& other) {
 		if ((this->columns != other.columns) || (this->rows != other.rows))
