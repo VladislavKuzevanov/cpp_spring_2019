@@ -1,15 +1,14 @@
+#include <new>
+#include <iostream>
 class array_1d
 {
 	int* mass_;
-	int amount;
+	size_t amount;
 public:
 	array_1d() {}
-	void init(int amount) {
-		array_1d::amount = amount;
-		mass_ = new int[amount];
-		for (int i = 0; i < amount; i++) {
-			mass_[i] = i;
-		}
+	array_1d(int number) {
+		mass_ = new int[number];
+		amount = number;
 	}
 	const int& operator[](size_t i) const
 	{
@@ -28,19 +27,17 @@ public:
 	}
 };
 class Matrix
-	: public array_1d
 {
 	array_1d * mass_2d_;
-	int rows, columns;
+	size_t rows, columns;
 public:
-	Matrix(int rows, int columns)
+	Matrix(size_t rows, size_t columns)
 		: rows(rows), columns(columns)
 	{
-		mass_2d_ = new array_1d[columns];
-		for (int i = 0; i < rows; i++) {
-			mass_2d_[i].init(columns);
-			for (int j = 0; j < columns; j++)
-				mass_2d_[i][j] = i + j;
+		mass_2d_ = static_cast<array_1d*>(operator new[](rows * sizeof(array_1d)));
+		for (int i = 0; i < rows; i++)
+		{
+			new (mass_2d_ + i) array_1d(columns); //здесь память для объекта не выделяется, но инициализируется
 		}
 	};
 	array_1d& operator[] (size_t i)
@@ -55,15 +52,15 @@ public:
 			throw std::out_of_range("");
 		return mass_2d_[i];
 	}
-	int getRows() {
+	int getRows() const {
 		return rows;
 	}
-	int getColumns() {
+	int getColumns() const {
 		return columns;
 	}
-	Matrix& operator*= (const int& x) {
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < columns; j++) {
+	Matrix& operator*= (int x) {
+		for (size_t i = 0; i < rows; i++) {
+			for (size_t j = 0; j < columns; j++) {
 				(*this)[i][j] = (*this)[i][j] * x;
 			}
 		}
@@ -72,8 +69,8 @@ public:
 	bool operator== (const Matrix& other) {
 		if ((this->columns != other.columns) || (this->rows != other.rows))
 			return false;
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < columns; j++) {
+		for (size_t i = 0; i < rows; i++) {
+			for (size_t j = 0; j < columns; j++) {
 				if ((*this)[i][j] != (other)[i][j])
 					return false;
 			}
@@ -81,17 +78,14 @@ public:
 		return true;
 	}
 	bool operator!= (const Matrix& other) {
-		int k = 0;
-		if ((this->columns != other.columns) || (this->rows != other.rows))
-			return true;
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < columns; j++) {
-				if ((*this)[i][j] == (other)[i][j])
-					k += 1;
-			}
+		return !(*this == other);
+	}
+	~Matrix() {
+		//!!деинициализация памяти
+		for (int i = 0; i < rows; i++)
+		{
+			mass_2d_[i].~array_1d();
 		}
-		if (k > 0)
-			return 0;
-		else return 1;
+		operator delete[](mass_2d_);
 	}
 };
