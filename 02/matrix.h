@@ -37,7 +37,7 @@ public:
 		mass_2d_ = static_cast<array_1d*>(operator new[](rows * sizeof(array_1d)));
 		for (int i = 0; i < rows; i++)
 		{
-			new (mass_2d_ + i) array_1d(columns); //здесь память для объекта не выделяется, но инициализируется
+			new (mass_2d_ + i) array_1d(columns);
 		}
 	};
 	array_1d& operator[] (size_t i)
@@ -81,7 +81,6 @@ public:
 		return !(*this == other);
 	}
 	~Matrix() {
-		//!!деинициализация памяти
 		for (int i = 0; i < rows; i++)
 		{
 			mass_2d_[i].~array_1d();
