@@ -52,10 +52,10 @@ public:
 			throw std::out_of_range("");
 		return mass_2d_[i];
 	}
-	int getRows() const {
+	const int getRows() const {
 		return rows;
 	}
-	int getColumns() const {
+	const int getColumns() const {
 		return columns;
 	}
 	Matrix& operator*= (int x) {
