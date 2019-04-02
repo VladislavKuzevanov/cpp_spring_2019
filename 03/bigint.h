@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
+
 class BigInt {
 	int amount;
 	char* data_;
@@ -91,35 +92,49 @@ public:
 		return out;
 	}
 	bool operator>(const BigInt& other) const {
-		if (this->sign > other.sign)
+		if (*this == other)
 			return 0;
-		else if (this->sign < other.sign)
-			return 1;
-		else if (this->amount > other.amount)
-			return 1;
-		else if (this->amount > other.amount)
-			return 0;
-		for (size_t i = this->amount; i >= 1; i--) {
-			if (this->data_[i-1] > other.data_[i-1])
-				return 1;
+		if (this->sign > other.sign) return 0;
+		if (this->sign < other.sign) return 1;
+		if (this->amount > other.amount) return 1;
+		if (this->amount < other.amount) return 0;
+		for (size_t i = this->amount; i > 0; i--)
+		{
+			if (this->data_[i - 1] < other.data_[i - 1])
+			{
+				if (this->sign == 1) return 1;
+				else return 0;
+			}
+			else if (this->data_[i - 1] > other.data_[i - 1])
+			{
+				if (this->sign == 1) return 0;
+				else return 1;
+			}
 		}
-		return 0;
 	}
 	bool operator<=(const BigInt& other) const {
 		return !(*this > other);
 	}
 	bool operator<(const BigInt& other) const {
-		if (this->sign > other.sign)
-			return 1;
-		else if (this->sign < other.sign)
+		if (*this == other)
 			return 0;
-		else if (this->amount > other.amount)
-			return 0;
-		else if (this->amount > other.amount)
-			return 1;
-		for (size_t i = this->amount; i >= 1; i--) {
-			if (this->data_[i-1] < other.data_[i-1])
-				return 1;
+		if (this->sign > other.sign) return 1;
+		if (this->sign < other.sign) return 0;
+		if (this->amount > other.amount) return 0;
+		if (this->amount < other.amount) return 1;
+
+		for (size_t i = this->amount; i > 0; i--)
+		{
+			if (this->data_[i - 1] > other.data_[i - 1])
+			{
+				if (this->sign) return 1;
+				else return 0;
+			}
+			else if (this->data_[i - 1] < other.data_[i - 1])
+			{
+				if (this->sign) return 0;
+				else return 1;
+			}
 		}
 		return 0;
 	}
@@ -130,11 +145,10 @@ public:
 	{
 		if (this == &other)
 			return true;
-
-		for (size_t i = 0; i < amount; ++i)
-			if (data_[i] != other.data_[i])
+		for (size_t i = 1; i < amount + 1; ++i) {
+			if (data_[i - 1] != other.data_[i - 1])
 				return false;
-
+		}
 		return true;
 	}
 	bool operator!=(const BigInt& other) const
@@ -144,20 +158,7 @@ public:
 	bool operator>(const int64_t& value) const
 	{
 		BigInt other = value;
-		if (this->sign > other.sign)
-			return 0;
-		if (this->sign < other.sign)
-			return 1;
-		if (this->amount > other.amount)
-			return 1;
-		if (this->amount < other.amount)
-			return 0;
-		for (size_t i = 0; i < this->amount; i++)
-		{
-			if (this->data_[i] > other.data_[i])
-				return 1;
-		}
-		return 0;
+		return this->operator>(other);
 	}
 	bool operator<=(const int64_t& value) const {
 		BigInt other = value;
@@ -166,19 +167,7 @@ public:
 	bool operator<(const int64_t& value) const
 	{
 		BigInt other = value;
-		if (this->sign > other.sign)
-			return 1;
-		else if (this->sign < other.sign)
-			return 0;
-		else if (this->amount > other.amount)
-			return 0;
-		else if (this->amount > other.amount)
-			return 1;
-		for (size_t i = this->amount; i >= 1; i--) {
-			if (this->data_[i-1] < other.data_[i-1])
-				return 1;
-		}
-		return 0;
+		return this->operator<(other);
 	}
 	bool operator>=(const int64_t& value) const {
 		BigInt other = value;
@@ -187,14 +176,7 @@ public:
 	bool operator==(const int64_t& value) const
 	{
 		BigInt other = value;
-		if (this == &other)
-			return 1;
-
-		for (size_t i = 0; i < amount; ++i)
-			if (data_[i] != other.data_[i])
-				return 0;
-
-		return 1;
+		return this->operator==(other);
 	}
 	bool operator!=(const int64_t& value) const
 	{
