@@ -12,7 +12,7 @@ public:
 		this->sign = 0;
 		this->data_ = new char[amount];
 		this->data_[0] = 0 + '0';
-	} // <- конструктор по умолчанию 
+	}
 	BigInt(const BigInt& copied)
 		: data_(new char[copied.amount])
 		, amount(copied.amount)
@@ -82,7 +82,11 @@ public:
 		}
 		return *this;
 	}
-	~BigInt() {} //<-деструктор
+	~BigInt() {
+		amount = 0;
+		sign = 0;
+		delete[] data_;
+	} //<-äåñòðóêòîð
 	friend std::ostream& operator<<(std::ostream &out, const BigInt &BigInt)
 	{
 		if (BigInt.sign)
@@ -183,7 +187,7 @@ public:
 		BigInt other = value;
 		return !(*this == other);
 	}
-	BigInt operator-() const //<-унарный минус
+	BigInt operator-() const //<-óíàðíûé ìèíóñ
 	{
 		BigInt tmp(*this);
 		tmp.sign = !tmp.sign;
@@ -204,13 +208,8 @@ public:
 			tmpdata1[i] = 0 + '0';
 		for (int i = other.amount; i < maxsize; i++)
 			tmpdata2[i] = 0 + '0';
-		/*for (int i = 0; i < maxsize; i++)
-			std::cout << tmpdata1[i];
-		std::cout << std::endl;
-		for (int i = 0; i < maxsize; i++)
-			std::cout << tmpdata2[i];
-		std::cout << std::endl;*/
 		BigInt c;
+		delete[] c.data_;
 		c.data_ = new char[maxsize];
 		int i = maxsize - 1;
 		int k = 0;
@@ -233,13 +232,14 @@ public:
 			c.data_ = new char[1];
 			c.data_[0] = 0 + '0';
 			c.sign = 0;
+			delete[] tmpdata1;
+			delete[] tmpdata2;
 			return c;
 		}
 		else if (k == 1)
 			c.sign = this->sign;
 		else
 			c.sign = other.sign;
-		//std::cout << "c.sign=" << c.sign << std::endl;
 		int ost = 0;
 		if (this->sign == other.sign) {
 			for (int i = 0; i < maxsize; i++) {
@@ -247,39 +247,49 @@ public:
 				c.data_[i] = ost % 10 + '0';
 				ost = ost / 10;
 			}
-			/*for (int i = 0; i < maxsize; i++)
-				std::cout << c.data_[i];
-			std::cout << std::endl;*/
 			int t = 0;
-			while (c.data_[maxsize - 1 - t] == '0')
+			while (c.data_[maxsize - 1 - t] == '0') {
 				t += 1;
+				if (c.amount - 1 - t < 0) {
+					break;
+				}
+			}
+
 			c.amount = maxsize - (t);
+			delete[] tmpdata1;
+			delete[] tmpdata2;
 			return c;
 		}
 		else {
-			//std::cout << tmpdata1 << std::endl;
-			//std::cout << tmpdata2 << std::endl;
 			if (k == 1)
 				invers(tmpdata1, this->amount);
 			else
 				invers(tmpdata2, other.amount);
-			//std::cout << tmpdata1 << std::endl;
-			//std::cout << tmpdata2 << std::endl;
 			for (int i = 0; i < maxsize; i++) {
 				ost = ost + (tmpdata1[i] - '0') + (tmpdata2[i] - '0');
 				c.data_[i] = ost % 10 + '0';
 				ost = ost / 10;
 			}
 			int t = 0;
-			while (c.data_[maxsize - 1 - t] == '0')
+			while (c.data_[maxsize - 1 - t] == '0') {
 				t += 1;
+				if (c.amount - 1 - t < 0) {
+					break;
+				}
+			}
 			invers(c.data_, maxsize - t);
 			c.amount = maxsize - t;
 		}
 		int t = 0;
-		while (c.data_[c.amount - 1 - t] == '0')
+		while (c.data_[c.amount - 1 - t] == '0') {
 			t += 1;
+			if (c.amount - 1 - t < 0) {
+				break;
+			}
+		}
 		c.amount = c.amount - t;
+		delete[] tmpdata1;
+		delete[] tmpdata2;
 		return c;
 	}
 	BigInt operator-(const BigInt& other) const {
