@@ -41,7 +41,7 @@ private:
 			return Error::IncorrectType;
 	}
 	template <class T, class... ArgsT>
-	Error process(T value, ArgsT... args) {
+	Error process(T value, ArgsT&&... args) {
 		if (std::is_same<uint64_t, decltype(value)>::value) {
 			out_ << value << Separator;
 		}
