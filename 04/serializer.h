@@ -24,7 +24,7 @@ public:
 	}
 	template <class... ArgsT>
 	Error operator()(ArgsT... args) {
-		return process(std::forward<ArgsT>(args)...);
+		return process(std::forward<ArgsT&>(args)...);
 	}
 private:
 	template<class T>
@@ -51,7 +51,7 @@ private:
 		else
 			return Error::IncorrectType;
 
-		return process(std::forward<ArgsT>(args)...);
+		return process(std::forward<ArgsT&>(args)...);
 	}
 };
 class Deserializer
