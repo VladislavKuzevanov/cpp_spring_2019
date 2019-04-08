@@ -23,8 +23,8 @@ public:
 		return object.serialize(*this);
 	}
 	template <class... ArgsT>
-	Error operator()(ArgsT... args) {
-		return process(std::forward<ArgsT&>(args)...);
+	Error operator()(ArgsT&&... args) {
+		return process(std::forward<ArgsT>(args)...);
 	}
 private:
 	template<class T>
@@ -51,7 +51,7 @@ private:
 		else
 			return Error::IncorrectType;
 
-		return process(std::forward<ArgsT&>(args)...);
+		return process(std::forward<ArgsT>(args)...);
 	}
 };
 class Deserializer
@@ -60,7 +60,7 @@ class Deserializer
 	static constexpr char Separator = ' ';
 	static bool is_digital(const std::string &str) {
 		for (auto i : str) {
-			if ((i < 48) || (i > 57)) {
+			if ((i - '0' < 0) || (i - '0' > 9)) {
 				return false;
 			}
 			return true;
@@ -77,8 +77,8 @@ public:
 	}
 
 	template <class... ArgsT>
-	Error operator()(ArgsT&... args) {
-		return process(std::forward<ArgsT&>(args)...);
+	Error operator()(ArgsT&&... args) {
+		return process(std::forward<ArgsT>(args)...);
 	}
 
 private:
@@ -120,7 +120,7 @@ private:
 	}
 
 	template <class T, class... ArgsT>
-	Error process(T &value, ArgsT&... args) {
+	Error process(T &value, ArgsT&&... args) {
 		std::string tmp;
 		std::stringstream str_stream;
 		uint64_t temp_val;
@@ -129,11 +129,11 @@ private:
 			in_ >> tmp;
 			if (tmp == "true") {
 				value = true;
-				return process(std::forward<ArgsT&>(args)...);
+				return process(std::forward<ArgsT>(args)...);
 			}
 			else if (tmp == "false") {
 				value = false;
-				return process(std::forward<ArgsT&>(args)...);
+				return process(std::forward<ArgsT>(args)...);
 			}
 			else {
 				return Error::CorruptedArchive;
@@ -145,7 +145,7 @@ private:
 				str_stream << tmp << Separator;
 				str_stream >> temp_val;
 				value = temp_val;
-				return process(std::forward<ArgsT&>(args)...);
+				return process(std::forward<ArgsT>(args)...);
 			}
 			else {
 				return Error::CorruptedArchive;
@@ -154,6 +154,6 @@ private:
 		else {
 			return Error::IncorrectType;
 		}
-		return process(std::forward<ArgsT&>(args)...);
+		return process(std::forward<ArgsT>(args)...);
 	}
 };
