@@ -1,9 +1,9 @@
 #include <iostream> 
 #include <thread> 
 #include <mutex> 
-
+const int n = 1000000;
 void print1(int& i) {
-	while (i < 1000000) {
+	while (i < n) {
 		if (i % 2 == 1)
 		{
 			printf("ping\n");
@@ -15,7 +15,7 @@ void print1(int& i) {
 	}
 }
 void print2(int& i) {
-	while (i <= 1000000) {
+	while (i <= n) {
 		if (i % 2 == 0)
 		{
 			printf("pong\n");
