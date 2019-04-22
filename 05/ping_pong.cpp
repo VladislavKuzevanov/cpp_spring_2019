@@ -2,15 +2,12 @@
 #include <thread> 
 #include <mutex> 
 
-std::mutex mtx;
 void print1(int& i) {
 	while (i < 1000000) {
 		if (i % 2 == 1)
 		{
-			mtx.lock();
 			printf("ping\n");
 			i++;
-			mtx.unlock();
 		}
 		else {
 			std::this_thread::yield();
@@ -21,10 +18,8 @@ void print2(int& i) {
 	while (i <= 1000000) {
 		if (i % 2 == 0)
 		{
-			mtx.lock();
 			printf("pong\n");
 			i++;
-			mtx.unlock();
 		}
 		else {
 			std::this_thread::yield();
