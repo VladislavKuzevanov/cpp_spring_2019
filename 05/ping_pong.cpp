@@ -1,6 +1,5 @@
 #include <iostream> 
-#include <thread> 
-#include <mutex> 
+#include <thread>
 const int n = 1000000;
 void print1(int& i) {
 	while (i < n) {
@@ -8,9 +7,6 @@ void print1(int& i) {
 		{
 			printf("ping\n");
 			i++;
-		}
-		else {
-			std::this_thread::yield();
 		}
 	}
 }
@@ -20,9 +16,6 @@ void print2(int& i) {
 		{
 			printf("pong\n");
 			i++;
-		}
-		else {
-			std::this_thread::yield();
 		}
 	}
 }
