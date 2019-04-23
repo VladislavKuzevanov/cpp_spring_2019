@@ -1,29 +1,31 @@
 #include <iostream> 
 #include <thread>
+#include <atomic>
 const int n = 1000000;
-void print1(int& i) {
+std::atomic<int> i (1);
+void print1() {
 	while (i < n) {
 		if (i % 2 == 1)
 		{
 			printf("ping\n");
-			i++;
+			i+=1;
 		}
 	}
 }
-void print2(int& i) {
+void print2() {
+	
 	while (i <= n) {
 		if (i % 2 == 0)
 		{
 			printf("pong\n");
-			i++;
+			i+=1;
 		}
 	}
 }
 int main()
 {
-	int i = 1;
-	std::thread th1(print1, std::ref(i));
-	std::thread th2(print2, std::ref(i));
+	std::thread th1(print1);
+	std::thread th2(print2);
 	th1.join();
 	th2.join();
 	return 0;
