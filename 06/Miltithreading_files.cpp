@@ -158,16 +158,16 @@ int main()
 
 	std::cout << "Wait while merging..." << std::endl;
 
-	uint64_t fail_index = 0;
+	uint64_t file_index = 0;
 	while (k != 1) {
 		int index = 1;
 		std::cout << "k = " << k << std::endl;
 		if (k % 2 == 1) {
 			std::string s1, s2;
-			s1 = "c:/AMD/" + std::to_string(k - 1) + "_" + std::to_string(fail_index) + ".txt";
-			s2 = "c:/AMD/" + std::to_string(k) + "_" + std::to_string(fail_index) + ".txt";
-			merge(s1, s2, std::to_string(k - 1) + "_" + std::to_string(fail_index) + "a.txt");
-			std::string a = ("c:/AMD/" + std::to_string(k - 1) + "_" + std::to_string(fail_index) + "a.txt");
+			s1 = "c:/AMD/" + std::to_string(k - 1) + "_" + std::to_string(file_index) + ".txt";
+			s2 = "c:/AMD/" + std::to_string(k) + "_" + std::to_string(file_index) + ".txt";
+			merge(s1, s2, std::to_string(k - 1) + "_" + std::to_string(file_index) + "a.txt");
+			std::string a = ("c:/AMD/" + std::to_string(k - 1) + "_" + std::to_string(file_index) + "a.txt");
 			const char* b = s1.c_str();
 			std::rename(a.c_str(), b);
 			k = k - 1;
@@ -177,10 +177,10 @@ int main()
 			for (int j = 0; j < ThreadsNumber; j++) {
 				if (index - 1 < k / 2) {
 					std::string s3, s4;
-					s3 = "c:/AMD/" + std::to_string(2 * index - 1) + "_" + std::to_string(fail_index) + ".txt";
-					s4 = "c:/AMD/" + std::to_string(2 * index) + "_" + std::to_string(fail_index) + ".txt";
-					std::thread th([s3, s4, index, fail_index]()->void {
-						return merge(s3, s4, std::to_string(index) + "_" + std::to_string(fail_index + 1) + ".txt");
+					s3 = "c:/AMD/" + std::to_string(2 * index - 1) + "_" + std::to_string(file_index) + ".txt";
+					s4 = "c:/AMD/" + std::to_string(2 * index) + "_" + std::to_string(file_index) + ".txt";
+					std::thread th([s3, s4, index, file_index]()->void {
+						return merge(s3, s4, std::to_string(index) + "_" + std::to_string(file_index + 1) + ".txt");
 					});
 					threads.emplace_back(std::move(th));
 					index = index + 1;
@@ -193,13 +193,14 @@ int main()
 			}
 		}
 		k /= 2;
-		fail_index += 1;
+		file_index += 1;
 	}
 
 	std::cout << "Merging ended" << std::endl;
 
 	std::string result = "c:/AMD/RESULT.txt";
-	std::rename(("c:/AMD/1_"+std::to_string(fail_index) + ".txt").c_str(), result.c_str());
+	std::string last_file = "c:/AMD/1_"+std::to_string(file_index) + ".txt";
+	std::rename(last_file.c_str(), result.c_str());
 	std::cout << "done" << std::endl << "Your result in c:/AMD/RESULT.txt";
 	return 0;
 }
