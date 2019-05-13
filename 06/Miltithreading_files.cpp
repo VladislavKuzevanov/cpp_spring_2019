@@ -113,7 +113,7 @@ void merge(const std::string& f1,const std::string& f2, const std::string& file_
 int main()
 {
 
-	const size_t w = 100000; //Initial file size
+	const size_t w = 1000000; //Initial file size
 	uint64_t n;
 	const size_t ThreadsNumber = 2; //Number of threads
 	std::string file_sort_result = "_0.txt";
