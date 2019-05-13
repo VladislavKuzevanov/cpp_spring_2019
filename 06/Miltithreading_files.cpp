@@ -6,9 +6,8 @@
 #include <thread>
 #include <string>
 
-/////////////////////////Cutting the initial file into small one and sort
 
-void ins_sort(std::string file_name, std::string file_out_name, int position) {
+void ins_sort(const std::string& file_name, const std::string& file_out_name, int position) {
 	std::ifstream instrm(file_name, std::ios::binary);
 	instrm.seekg(position * sizeof(uint64_t), 0);
 	std::vector <uint64_t> t;
@@ -26,7 +25,7 @@ void ins_sort(std::string file_name, std::string file_out_name, int position) {
 		}
 	}
 	instrm.close();
-	std::ofstream outstrm("c:/AMD/" + file_out_name, std::ios::binary);
+	std::ofstream outstrm(file_out_name, std::ios::binary);
 	if (outstrm.is_open()) {
 		for (size_t i = 0; i < k; i++) {
 			outstrm.write((char*)& t[i], sizeof(t[i]));
@@ -35,9 +34,8 @@ void ins_sort(std::string file_name, std::string file_out_name, int position) {
 	outstrm.close();
 }
 
-/////////////////////////The function of merging two files
 
-void merge(std::string f1, std::string f2, std::string file_result)
+void merge(const std::string& f1,const std::string& f2, const std::string& file_result)
 {
 	uint64_t tmp1;
 	uint64_t tmp2;
@@ -53,7 +51,7 @@ void merge(std::string f1, std::string f2, std::string file_result)
 	int Size2 = instrm2.tellg();
 	instrm2.seekg(0);
 	size_t size_f2 = Size2 / sizeof(uint64_t);
-	std::string merge_result = "c:/AMD/" + file_result;
+	std::string merge_result = file_result;
 	std::ofstream outstrm(merge_result, std::ios::binary);
 	instrm1.read((char *)&tmp1, sizeof(tmp1));
 	instrm2.read((char *)&tmp2, sizeof(tmp2));
@@ -98,14 +96,13 @@ void merge(std::string f1, std::string f2, std::string file_result)
 
 int main()
 {
-	/////////////////////////Generating the initial file
 
-	const size_t w = 125000; //////////////----------> Initial file size
+	const size_t w = 1250000; //Initial file size
 	uint64_t n;
-	const size_t ThreadsNumber = 8; //////////////----------> Number of threads
+	const size_t ThreadsNumber = 8; //Number of threads
 	std::string file_sort_result = "_0.txt";
 	srand((unsigned)time(NULL));
-	std::ofstream outstrm("c:/AMD/file_base.txt", std::ios::binary);
+	std::ofstream outstrm("file_base.txt", std::ios::binary);
 	if (outstrm.is_open())
 	{
 		for (int i = 0; i < w; i++) {
@@ -114,9 +111,8 @@ int main()
 		}
 	}
 	outstrm.close();
-	
-	/////////////////////////Finding the number of elements in the initial file.
-	std::ifstream instrm("c:/AMD/file_base.txt", std::ios::binary);
+
+	std::ifstream instrm("file_base.txt", std::ios::binary);
 	instrm.seekg(0, std::ios::end);
 	int File_Size = instrm.tellg();
 	instrm.seekg(0, std::ios::end);
@@ -124,8 +120,6 @@ int main()
 	instrm.seekg(0, 0);
 	int Base_Size = File_Size / sizeof(uint64_t);
 	std::cout << "!" << Base_Size << std::endl;
-
-	/////////////////////////Spliting a large file into smaller sorted ones
 
 	std::cout << "Wait while sorting..." << std::endl;
 
@@ -135,26 +129,21 @@ int main()
 		std::vector <std::thread> threads;
 		for (size_t i = 0; i < ThreadsNumber; i++) {
 			if (position_tmp < Base_Size) {
-				//std::cout << "!!!" << position_tmp << std::endl;
-				std::thread th(ins_sort, "c:/AMD/file_base.txt", std::to_string(k) + file_sort_result, position_tmp);
+				std::thread th(ins_sort, "file_base.txt", std::to_string(k) + file_sort_result, position_tmp);
 				threads.emplace_back(std::move(th));
 				position_tmp = position_tmp + 100;
 				k++;
 			}
 		}
 		for (auto& t : threads) {
-			if (t.joinable()) {
-				t.join();
-			}
+			t.join();
 		}
 	}
 
 	k = k - 1;
 	std::cout << "k = " << k << std::endl;
-	
-	std::cout << "Sorting ended." << std::endl;
 
-	/////////////////////////Merging sorted files
+	std::cout << "Sorting ended." << std::endl;
 
 	std::cout << "Wait while merging..." << std::endl;
 
@@ -163,11 +152,12 @@ int main()
 		int index = 1;
 		std::cout << "k = " << k << std::endl;
 		if (k % 2 == 1) {
-			std::string s1, s2;
-			s1 = "c:/AMD/" + std::to_string(k - 1) + "_" + std::to_string(file_index) + ".txt";
-			s2 = "c:/AMD/" + std::to_string(k) + "_" + std::to_string(file_index) + ".txt";
-			merge(s1, s2, std::to_string(k - 1) + "_" + std::to_string(file_index) + "a.txt");
-			std::string a = ("c:/AMD/" + std::to_string(k - 1) + "_" + std::to_string(file_index) + "a.txt");
+			std::string s1, s2, s_tmp;
+			s1 = std::to_string(k - 1) + "_" + std::to_string(file_index) + ".txt";
+			s2 = std::to_string(k) + "_" + std::to_string(file_index) + ".txt";
+			s_tmp = std::to_string(k - 1) + "_" + std::to_string(file_index) + "a.txt";
+			merge(s1, s2, s_tmp);
+			std::string a = (std::to_string(k - 1) + "_" + std::to_string(file_index) + "a.txt");
 			const char* b = s1.c_str();
 			std::rename(a.c_str(), b);
 			k = k - 1;
@@ -176,20 +166,19 @@ int main()
 			std::vector <std::thread> threads;
 			for (int j = 0; j < ThreadsNumber; j++) {
 				if (index - 1 < k / 2) {
-					std::string s3, s4;
-					s3 = "c:/AMD/" + std::to_string(2 * index - 1) + "_" + std::to_string(file_index) + ".txt";
-					s4 = "c:/AMD/" + std::to_string(2 * index) + "_" + std::to_string(file_index) + ".txt";
-					std::thread th([s3, s4, index, file_index]()->void {
-						return merge(s3, s4, std::to_string(index) + "_" + std::to_string(file_index + 1) + ".txt");
+					std::string s3, s4, s_tmp2;
+					s3 = std::to_string(2 * index - 1) + "_" + std::to_string(file_index) + ".txt";
+					s4 = std::to_string(2 * index) + "_" + std::to_string(file_index) + ".txt";
+					s_tmp2 = std::to_string(index) + "_" + std::to_string(file_index + 1) + ".txt";
+					std::thread th([s3, s4, s_tmp2, index, file_index]()->void {
+						return merge(s3, s4, s_tmp2);
 					});
 					threads.emplace_back(std::move(th));
 					index = index + 1;
 				}
 			}
 			for (auto& t : threads) {
-				if (t.joinable()) {
-					t.join();
-				}
+				t.join();
 			}
 		}
 		k /= 2;
@@ -198,9 +187,9 @@ int main()
 
 	std::cout << "Merging ended" << std::endl;
 
-	std::string result = "c:/AMD/RESULT.txt";
-	std::string last_file = "c:/AMD/1_"+std::to_string(file_index) + ".txt";
+	std::string result = "RESULT.txt";
+	std::string last_file = "1_" + std::to_string(file_index) + ".txt";
 	std::rename(last_file.c_str(), result.c_str());
-	std::cout << "done" << std::endl << "Your result in c:/AMD/RESULT.txt";
+	std::cout << "done" << std::endl << "Your result in RESULT.txt";
 	return 0;
 }
