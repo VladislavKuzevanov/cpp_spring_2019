@@ -9,6 +9,10 @@
 
 void ins_sort(const std::string& file_name, const std::string& file_out_name, int position) {
 	std::ifstream instrm(file_name, std::ios::binary);
+	if (!instrm.is_open()) {
+		std::cout << file_name + "is not open" << std::endl;
+		std::exit(0);
+	}
 	instrm.seekg(position * sizeof(uint64_t), 0);
 	std::vector <uint64_t> t;
 	uint64_t tmp;
@@ -40,7 +44,15 @@ void merge(const std::string& f1,const std::string& f2, const std::string& file_
 	uint64_t tmp1;
 	uint64_t tmp2;
 	std::ifstream instrm1(f1, std::ios::binary);
+	if (!instrm1.is_open()) {
+		std::cout << f1 + "is not open" << std::endl;
+		std::exit(0);
+	}
 	std::ifstream instrm2(f2, std::ios::binary);
+	if (!instrm2.is_open()) {
+		std::cout << f2 + "is not open" << std::endl;
+		std::exit(0);
+	}
 	size_t counter1 = 0;
 	size_t counter2 = 0;
 	instrm1.seekg(0, std::ios::end);
@@ -53,6 +65,10 @@ void merge(const std::string& f1,const std::string& f2, const std::string& file_
 	size_t size_f2 = Size2 / sizeof(uint64_t);
 	std::string merge_result = file_result;
 	std::ofstream outstrm(merge_result, std::ios::binary);
+	if (!outstrm.is_open()) {
+		std::cout << merge_result + "is not open" << std::endl;
+		std::exit(0);
+	}
 	instrm1.read((char *)&tmp1, sizeof(tmp1));
 	instrm2.read((char *)&tmp2, sizeof(tmp2));
 	while (counter1 < size_f1 && counter2 < size_f2) {
@@ -97,9 +113,9 @@ void merge(const std::string& f1,const std::string& f2, const std::string& file_
 int main()
 {
 
-	const size_t w = 1250000; //Initial file size
+	const size_t w = 100000; //Initial file size
 	uint64_t n;
-	const size_t ThreadsNumber = 8; //Number of threads
+	const size_t ThreadsNumber = 2; //Number of threads
 	std::string file_sort_result = "_0.txt";
 	srand((unsigned)time(NULL));
 	std::ofstream outstrm("file_base.txt", std::ios::binary);
@@ -113,6 +129,10 @@ int main()
 	outstrm.close();
 
 	std::ifstream instrm("file_base.txt", std::ios::binary);
+	if (!instrm.is_open()) {
+		std::cout << "file_base.txt is not open" << std::endl;
+		std::exit(0);
+	}
 	instrm.seekg(0, std::ios::end);
 	int File_Size = instrm.tellg();
 	instrm.seekg(0, std::ios::end);
