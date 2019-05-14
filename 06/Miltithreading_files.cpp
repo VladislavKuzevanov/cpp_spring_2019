@@ -1,3 +1,4 @@
+#include "pch.h"
 #include <iostream>
 #include <io.h>
 #include <fstream>
@@ -6,12 +7,13 @@
 #include <thread>
 #include <string>
 
+int exept = 0;
 
 void ins_sort(const std::string& file_name, const std::string& file_out_name, int position) {
 	std::ifstream instrm(file_name, std::ios::binary);
 	if (!instrm.is_open()) {
-		std::cout << file_name + "is not open" << std::endl;
-		std::exit(0);
+		exept += 1;
+		return;
 	}
 	instrm.seekg(position * sizeof(uint64_t), 0);
 	std::vector <uint64_t> t;
@@ -45,13 +47,15 @@ void merge(const std::string& f1,const std::string& f2, const std::string& file_
 	uint64_t tmp2;
 	std::ifstream instrm1(f1, std::ios::binary);
 	if (!instrm1.is_open()) {
+		exept += 1;
 		std::cout << f1 + "is not open" << std::endl;
-		std::exit(0);
+		return;
 	}
 	std::ifstream instrm2(f2, std::ios::binary);
 	if (!instrm2.is_open()) {
+		exept += 1;
 		std::cout << f2 + "is not open" << std::endl;
-		std::exit(0);
+		return;
 	}
 	size_t counter1 = 0;
 	size_t counter2 = 0;
@@ -66,8 +70,9 @@ void merge(const std::string& f1,const std::string& f2, const std::string& file_
 	std::string merge_result = file_result;
 	std::ofstream outstrm(merge_result, std::ios::binary);
 	if (!outstrm.is_open()) {
+		exept += 1;
 		std::cout << merge_result + "is not open" << std::endl;
-		std::exit(0);
+		return;
 	}
 	instrm1.read((char *)&tmp1, sizeof(tmp1));
 	instrm2.read((char *)&tmp2, sizeof(tmp2));
@@ -113,7 +118,7 @@ void merge(const std::string& f1,const std::string& f2, const std::string& file_
 int main()
 {
 
-	const size_t w = 1000000; //Initial file size
+	const size_t w = 100000; //Initial file size
 	uint64_t n;
 	const size_t ThreadsNumber = 2; //Number of threads
 	std::string file_sort_result = "_0.txt";
@@ -131,7 +136,8 @@ int main()
 	std::ifstream instrm("file_base.txt", std::ios::binary);
 	if (!instrm.is_open()) {
 		std::cout << "file_base.txt is not open" << std::endl;
-		std::exit(0);
+		std::cout << "error have been detected" << std::endl;
+		return 0;
 	}
 	instrm.seekg(0, std::ios::end);
 	int File_Size = instrm.tellg();
@@ -145,7 +151,7 @@ int main()
 
 	uint64_t position_tmp = 0;
 	int k = 1;
-	while (position_tmp < Base_Size) {
+	while (position_tmp < Base_Size && exept==0) {
 		std::vector <std::thread> threads;
 		for (size_t i = 0; i < ThreadsNumber; i++) {
 			if (position_tmp < Base_Size) {
@@ -160,15 +166,16 @@ int main()
 		}
 	}
 
-	k = k - 1;
-	std::cout << "k = " << k << std::endl;
+	if (exept == 0) {
+		k = k - 1;
+		std::cout << "k = " << k << std::endl;
 
-	std::cout << "Sorting ended." << std::endl;
+		std::cout << "Sorting ended." << std::endl;
 
-	std::cout << "Wait while merging..." << std::endl;
-
+		std::cout << "Wait while merging..." << std::endl;
+	}
 	uint64_t file_index = 0;
-	while (k != 1) {
+	while (k != 1 && exept==0) {
 		int index = 1;
 		std::cout << "k = " << k << std::endl;
 		if (k % 2 == 1) {
@@ -204,12 +211,16 @@ int main()
 		k /= 2;
 		file_index += 1;
 	}
+	if (exept == 0) {
+		std::cout << "Merging ended" << std::endl;
 
-	std::cout << "Merging ended" << std::endl;
-
-	std::string result = "RESULT.txt";
-	std::string last_file = "1_" + std::to_string(file_index) + ".txt";
-	std::rename(last_file.c_str(), result.c_str());
-	std::cout << "done" << std::endl << "Your result in RESULT.txt";
+		std::string result = "RESULT.txt";
+		std::string last_file = "1_" + std::to_string(file_index) + ".txt";
+		std::rename(last_file.c_str(), result.c_str());
+		std::cout << "done" << std::endl << "Your result in RESULT.txt";
+	}
+	else {
+		std::cout << "Error in programm" << std::endl;
+	}
 	return 0;
 }
