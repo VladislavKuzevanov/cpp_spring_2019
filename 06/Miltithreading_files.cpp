@@ -1,4 +1,3 @@
-#include "pch.h"
 #include <iostream>
 #include <io.h>
 #include <fstream>
@@ -189,27 +188,29 @@ int main()
 			std::rename(a.c_str(), b);
 			k = k - 1;
 		}
-		for (int num = 0; num < k; num += ThreadsNumber * 2) {
-			std::vector <std::thread> threads;
-			for (int j = 0; j < ThreadsNumber; j++) {
-				if (index - 1 < k / 2) {
-					std::string s3, s4, s_tmp2;
-					s3 = std::to_string(2 * index - 1) + "_" + std::to_string(file_index) + ".txt";
-					s4 = std::to_string(2 * index) + "_" + std::to_string(file_index) + ".txt";
-					s_tmp2 = std::to_string(index) + "_" + std::to_string(file_index + 1) + ".txt";
-					std::thread th([s3, s4, s_tmp2, index, file_index]()->void {
-						return merge(s3, s4, s_tmp2);
-					});
-					threads.emplace_back(std::move(th));
-					index = index + 1;
+		if (exept == 0) {
+			for (int num = 0; num < k; num += ThreadsNumber * 2) {
+				std::vector <std::thread> threads;
+				for (int j = 0; j < ThreadsNumber; j++) {
+					if (index - 1 < k / 2) {
+						std::string s3, s4, s_tmp2;
+						s3 = std::to_string(2 * index - 1) + "_" + std::to_string(file_index) + ".txt";
+						s4 = std::to_string(2 * index) + "_" + std::to_string(file_index) + ".txt";
+						s_tmp2 = std::to_string(index) + "_" + std::to_string(file_index + 1) + ".txt";
+						std::thread th([s3, s4, s_tmp2, index, file_index]()->void {
+							return merge(s3, s4, s_tmp2);
+						});
+						threads.emplace_back(std::move(th));
+						index = index + 1;
+					}
+				}
+				for (auto& t : threads) {
+					t.join();
 				}
 			}
-			for (auto& t : threads) {
-				t.join();
-			}
+			k /= 2;
+			file_index += 1;
 		}
-		k /= 2;
-		file_index += 1;
 	}
 	if (exept == 0) {
 		std::cout << "Merging ended" << std::endl;
